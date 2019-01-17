@@ -112,3 +112,7 @@ venv.bak/
 *.iml
 out
 gen
+
+## LaTeX redundant files
+report/dm971-prj3.aux
+report/dm971-prj3.synctex.gz
