@@ -35,13 +35,13 @@ def prog(data):
     print(training_set_result)
     neigh = KNeighborsClassifier(n_neighbors=3)
     neigh.fit(training_set, tsr_reformat)
-#   print
+#  print
     sample = training_set[0:2]
     print("sample: ", sample)
     print("sample predict: ", neigh.predict(sample))
 
 
-# fill missing value with modal
+# fill missing value with mode
 def fill_missing(data):
     for col in data.columns:
         mod = data[col].mode()[0]
