@@ -1,4 +1,5 @@
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import *
 import pandas as pd
 from random import sample
 import math
@@ -12,34 +13,23 @@ def hold_out(data):
     return train_set, test_set
 
 
-def my_test():
-    df = pd.DataFrame(
-        {'col1': [1, 2, 3, 4, 5, 6, 7], 'col2': list('ebd?aba'), 'col3': list('?bcdbbr'), 'col4': list('eewcae?')})
-    print(df)
-    test_set_size = math.floor(len(df.index) / 3)
-    test_set_indexes = sample(range(0, len(df.index)), test_set_size)
-    test_set = pd.DataFrame(df, index=test_set_indexes)
-    print("test_set_size: ", test_set_size)
-    print("test_set_indexes: ", test_set_indexes)
-    print("## Test Set \n", test_set, "\n##")
-    train_set = df.drop(test_set_indexes)
-
-
-def test():
-    testing_set_data = (pd.DataFrame(data, columns=range(1, 22))).values.tolist()
-    testing_set_result = (pd.DataFrame(data, columns=[0])).values.tolist()
+def test(test_data):
+    testing_set_data = (pd.DataFrame(test_data, columns=range(1, len(test_data.columns)))).values.tolist()
+    testing_set_result = (pd.DataFrame(test_data, columns=[0])).values.tolist()
+    predicted = knn.predict(testing_set_data)
+    precision, recall, fscore = (precision_recall_fscore_support(testing_set_result, predicted, beta=1, average='binary'))[0:3]
+    print("Precesion= ", precision)
+    print("Recall= ", recall)
+    print("fscore(beta=1)= ", fscore)
 
 
 def prog(data):
-    training_set_data = (pd.DataFrame(data, columns=range(1, 22))).values.tolist()
+    training_set_data = (pd.DataFrame(data, columns=range(1, len(data.columns)))).values.tolist()
     training_set_result = (pd.DataFrame(data, columns=[0])).values.tolist()
     # training_set_result reformat
     tsr_reformat = []
     for i in range(0, len(training_set_result)):
         tsr_reformat.append(training_set_result[i][0])
-    print(tsr_reformat)
-    print(training_set_data)
-    print(training_set_result)
     neigh = KNeighborsClassifier(n_neighbors=3)
     neigh.fit(training_set_data, tsr_reformat)
     return neigh
@@ -65,7 +55,4 @@ fill_missing(data)
 nominal_to_numeric(data)
 training_set, testing_set = hold_out(data)
 knn = prog(training_set)
-#test()
-#my_test()
-# hold_out(data)
-# print(neigh.predict_proba([[0,1]]))
+test(testing_set)
