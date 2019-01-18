@@ -13,8 +13,6 @@ def hold_out():
     print(data)
     # print(pd['1']['2'])
     X = [[0, 0], [1, 1], [2, 2], [3, 3]]
-    # print(X)
-    # print(data.values.tolist())
 
 
 def test():
@@ -54,6 +52,10 @@ def prog(data):
 # X = [[0,0], [1,1], [2,2], [3,3]]
 # y = [0, 0, 1, 1]
 data = pd.read_csv('data/agaricus-lepiota.data', sep=",", header=None)
+obj_cols = data.select_dtypes(['object']).columns
+data[obj_cols] = data[obj_cols].astype('category')
+cat_cols = data.select_dtypes(['category']).columns
+data[cat_cols] = data[cat_cols].apply(lambda x: x.cat.codes)
 prog(data)
 #test()
 # hold_out()
