@@ -6,7 +6,7 @@
 \usepackage{graphicx}
 \usepackage[localise=on]{xepersian}
 
-\settextfont{XB Yas}
+\settextfont{B Zar}
 \linespread{1.25}
 
 \title{گزارش پروژه سوم درس داده‌کاوی}
@@ -14,7 +14,7 @@
 \author{
 پرهام کاظمی \\ ۹۴۳۶۱۱۰۴۳۰۱۸
 \and
-علیرضا پرچمی \\ ۹۴۳۶؟؟
+علیرضا پرچمی \\ 943618113004
 }
 
 \begin{document}
@@ -105,15 +105,72 @@
 	
 	\زیرقسمت{استخراج قوانین از درخت تصمیم}
 	
-	\قسمت{الگوریتم KNN}
+\section{الگوریتم \lr{KNN}}
+\paragraph{}
+الگوریتم \lr{K} نزدیک‌ترین همسایه (\lr{KNN}) روشی برای پیش‌بینی \lr{label} داده‌ها است که جزو کلاس‌بندهای تنبل به‌شمار می‌آید. این الگوریتم داده‌‎های آموزشی را دریافت کرده و آن‌ها را با توجه به تعداد ویژگی‌ها در یک فضای چند بعدی قرار می‌دهد. برای مثال چنان‌چه داد‌ه‌های ما دارای 4 ویژگی باشد، فضای ما 4 بعدی می‌شود. به همین دلیل است که داده‌های مورد استفاده در این روش به صورت عددی هستند.
+
+پیش‌بینی در این الگوریتم به این صورت است که داده آزمایشی را گرفته و فاصله آن را با همه داده‌های آموزشی که از قبل دریافت کرده بود محاسبه می‌کند. با توجه به عدد \lr{K} که در ابتدا برای این الگوریتم مشخص کرده‌ایم، \lr{K} داده‌ای که کمترین فاصله را با داده آزمایشی ما دارد را انتخاب کرده و سپس \lr{label} آن‌ها را بررسی می‌کند. آن \lr{label} که بیشترین تعداد را دارد، برای \lr{label} داده آزمایشی ما انتخاب می‌شود. به این مرحله \lr{Voting} نیز گفته می‌شود.
+
+برای پیاده‌سازی کلاس‌بند به روش \lr{KNN}، از کتابخانه‌های \lr{sklearn} و \lr{pandas} کمک گرفتیم. این دو کتابخانه در پیاده‌سازی برخی توابع و هم‌چنین خواندن فایل‌های مربوط به دیتابیس و کار با آنها کمک شایانی می‌کند.
+
+\subsection{پیش‌پردازش داده‌ها}
+\paragraph{}
+در ابتدا، قطعه کد زیر جهت پیش‌پردازش دیتاست و داده‌های از دست رفته
+ (\lr{MissingValue}) اجرا می‌شود.
+  در تابع \lr{fill\_missing}، مقادیری که با "?" پر شده‌اند را در هر ستون پیدا کرده و سپس با مقدار مد جایگزین می‌شود.
+
+\begin{flushleft}
+\lr{\texttt{
+def fill\_missing(data):
+    for col in data.columns: \\
+        mod = data[col].mode()[0] \\
+        data[col] = data[col].replace('?', mod)
+}}
+\end{flushleft}
+
+سپس با توجه به اینکه روش \lr{KNN} بروی داده‌های عددی پیاده‌سازی می‌شود، داده‌های اسمی را به داده‌های عددی تبدیل می‌کنیم. این کار به دلیل محاسبه فاصله توسط الگوریتم \lr{KNN} انجام می‌شود.
+در تابع \lr{nominal\_to\_numeric}، نوع داده‌ها را از \lr{object} به \lr{category} تغییر داده و سپس آنها را به عدد تبدیل می‌کنیم. مقادیر هر ستون از عدد صفر شروع شده و به ترتیب مقداردهی می‌شوند.
+
+\begin{flushleft}
+\lr{\texttt{
+def nominal\_to\_numeric(data):\\
+    obj\_cols = data.select\_dtypes(['object']).columns\\
+    data[obj\_cols] = data[obj\_cols].astype('category')\\
+    cat\_cols = data.select\_dtypes(['category']).columns\\
+    data[cat\_cols] = data[cat\_cols].apply(lambda x: x.cat.codes)
+    }}
+\end{flushleft}
+
+\subsection{تقسیم‌بندی داده‌ها}	
+\paragraph{}
+سپس داده‌ها به روش \lr{holdout} به دو دسته \lr{training\_set} و \lr{testing\_set} تبدیل می‌شوند. در این تابع، ابتدا به صورت تصادفی تعداد یک سوم داده‌ها در \lr{test\_set} انتخاب شده و سپس بقیه داده‌ها به عنوان داده‌های آموزشی در \lr{train\_set} ریخته شده و بازگردانده می‌شوند.
+\begin{flushleft}
+\lr{\texttt{
+def hold\_out(data):\\
+    test\_set\_size = math.floor(len(data.index) / 3)\\
+    test\_set\_indexes = sample(range(0,len(data.index)), test\_set\_size)\\
+    test\_set = pd.DataFrame(data, index=test\_set\_indexes)\\
+    train\_set = data.drop(test\_set\_indexes)\\
+    return train\_set, test\_set
+}}
+\end{flushleft}
+
+\subsection{پیاده‌سازی و اجرای الگوریتم}
+\paragraph{}
+سپس در تابع \lr{main}، الگوریتم \lr{KNN} پیاده‌سازی شده است. ابتدا دو مجموعه تولید کرده و یکی از آنها شامل ستون اول است که نتیجه‌های اصلی را شامل می‌شود (\lr{training\_set\_result}) و دیگری شامل داده‌ها است (\lr{training\_set\_data}). پس از آن با استفاده از الگوریتم \lr{KNN} پیاده‌سازی شده در کتابخانه \lr{sklearn}، مدل موردنظر خود را با \lr{n=3} می‌سازیم.
 	
-	\پاراگراف{}
-	توضیحات الگوریتم
-	
-	\زیرقسمت{تقسیم‌بندی مجموعه‌داده}
-	
-	\زیرقسمت{پیاده‌سازی و اجرای الگوریتم}
-	
-	\زیرقسمت{بررسی دقت و صحت}
+\subsection{بررسی دقت و صحت}
+\paragraph{}
+سپس برای بدست آوردن مقدار \lr{Precision}، \lr{Recall} و \lr{F\_score} ابتدا مجموعه \lr{testing\_set} را به دو مجموعه حاوی نتایج نهایی و داده‌ها تقسیم می‌کنیم و سپس داده‌های تست را به مدل ساخته شده می‌دهیم. نتایج ذخیره شده در متغیر \lr{predicted} را با نتایج اصلی که در متغیر \lr{testing\_set\_result} ریخته بودیم را به‌کار می‌گیریم تا مقدار \lr{precision} و \lr{recall} و سپس \lr{f\_score} را بدست آوریم.
+\begin{flushleft}
+\lr{\texttt{
+def hold\_out(data):\\
+    test\_set\_size = math.floor(len(data.index) / 3)\\
+    test\_set\_indexes = sample(range(0,len(data.index)), test\_set\_size)\\
+    test\_set = pd.DataFrame(data, index=test\_set\_indexes)\\
+    train\_set = data.drop(test\_set\_indexes)\\
+    return train\_set, test\_set
+}}
+\end{flushleft}
 	
 \end{document}
