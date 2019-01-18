@@ -23,7 +23,7 @@ def test(test_data):
     print("fscore(beta=1)= ", fscore)
 
 
-def prog(data):
+def main(data):
     training_set_data = (pd.DataFrame(data, columns=range(1, len(data.columns)))).values.tolist()
     training_set_result = (pd.DataFrame(data, columns=[0])).values.tolist()
     # training_set_result reformat
@@ -54,5 +54,5 @@ data = pd.read_csv('data/agaricus-lepiota.data', sep=",", header=None)
 fill_missing(data)
 nominal_to_numeric(data)
 training_set, testing_set = hold_out(data)
-knn = prog(training_set)
+knn = main(training_set)
 test(testing_set)
