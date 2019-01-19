@@ -67,8 +67,8 @@
           <operator activated="true" class="tree_to_rules" compatibility="7.1.001" expanded="true" height="82" name="Tree to Rules" width="90" x="179" y="34">
             <process expanded="true">
               <operator activated="true" class="parallel_decision_tree" compatibility="7.1.001" expanded="true" height="82" name="Decision Tree" width="90" x="313" y="34">
-                <parameter key="criterion" value="gini_index"/>
-                <parameter key="maximal_depth" value="15"/>
+                <parameter key="criterion" value="information_gain"/>
+                <parameter key="maximal_depth" value="10"/>
                 <parameter key="apply_pruning" value="false"/>
                 <parameter key="confidence" value="0.25"/>
                 <parameter key="apply_prepruning" value="false"/>
