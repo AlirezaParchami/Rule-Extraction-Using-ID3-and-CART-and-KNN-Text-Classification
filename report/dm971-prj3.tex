@@ -120,29 +120,30 @@
 
 پیش‌بینی در این الگوریتم به این صورت است که داده آزمایشی را گرفته و فاصله آن را با همه داده‌های آموزشی که از قبل دریافت کرده بود محاسبه می‌کند. با توجه به عدد \lr{K} که در ابتدا برای این الگوریتم مشخص کرده‌ایم، \lr{K} داده‌ای که کمترین فاصله را با داده آزمایشی ما دارد را انتخاب کرده و سپس \lr{label} آن‌ها را بررسی می‌کند. آن \lr{label} که بیشترین تعداد را دارد، برای \lr{label} داده آزمایشی ما انتخاب می‌شود. به این مرحله \lr{Voting} نیز گفته می‌شود.
 
-برای پیاده‌سازی کلاس‌بند به روش \lr{KNN}، از کتابخانه‌های \lr{sklearn} و \lr{pandas} کمک گرفتیم. این دو کتابخانه در پیاده‌سازی برخی توابع و هم‌چنین خواندن فایل‌های مربوط به دیتابیس و کار با آنها کمک شایانی می‌کند.
+برای پیاده‌سازی کلاس‌بند به روش \lr{KNN}، از کتابخانه‌های \lr{sklearn} و \lr{pandas} کمک گرفتیم. این دو کتابخانه در پیاده‌سازی برخی توابع و هم‌چنین خواندن فایل‌های مربوط به دیتابیس و کار با آنها کمک شایانی می‌کنند.
 
 \subsection{پیش‌پردازش داده‌ها}
 \paragraph{}
 در ابتدا، قطعه کد زیر جهت پیش‌پردازش دیتاست و داده‌های از دست رفته
  (\lr{MissingValue}) اجرا می‌شود.
-  در تابع \lr{fill\_missing}، مقادیری که با «?» پر شده‌اند را در هر ستون پیدا کرده و سپس با مقدار مد جایگزین می‌شود.
+  در تابع \lr{fill\_missing}، مقادیری که با «?» پر شده‌اند را در هر ستون پیدا کرده و سپس با مقدار مد جایگزین می‌کنیم.
 
 \begin{flushleft}
 \lr{\texttt{
-def fill\_missing(data):
     for col in data.columns: \\
         mod = data[col].mode()[0] \\
         data[col] = data[col].replace('?', mod)
 }}
 \end{flushleft}
 
+\paragraph{}
 سپس با توجه به اینکه روش \lr{KNN} بروی داده‌های عددی پیاده‌سازی می‌شود، داده‌های اسمی را به داده‌های عددی تبدیل می‌کنیم. این کار به دلیل محاسبه فاصله توسط الگوریتم \lr{KNN} انجام می‌شود.
+
+
 در تابع \lr{nominal\_to\_numeric}، نوع داده‌ها را از \lr{object} به \lr{category} تغییر داده و سپس آنها را به عدد تبدیل می‌کنیم. مقادیر هر ستون از عدد صفر شروع شده و به ترتیب مقداردهی می‌شوند.
 
 \begin{flushleft}
 \lr{\texttt{
-def nominal\_to\_numeric(data):\\
     obj\_cols = data.select\_dtypes(['object']).columns\\
     data[obj\_cols] = data[obj\_cols].astype('category')\\
     cat\_cols = data.select\_dtypes(['category']).columns\\
@@ -155,7 +156,6 @@ def nominal\_to\_numeric(data):\\
 سپس داده‌ها به روش \lr{holdout} به دو دسته \lr{training\_set} و \lr{testing\_set} تبدیل می‌شوند. در این تابع، ابتدا به صورت تصادفی تعداد یک سوم داده‌ها در \lr{test\_set} انتخاب شده و سپس بقیه داده‌ها به عنوان داده‌های آموزشی در \lr{train\_set} ریخته شده و بازگردانده می‌شوند.
 \begin{flushleft}
 \lr{\texttt{
-def hold\_out(data):\\
     test\_set\_size = math.floor(len(data.index) / 3)\\
     test\_set\_indexes = sample(range(0,len(data.index)), test\_set\_size)\\
     test\_set = pd.DataFrame(data, index=test\_set\_indexes)\\
@@ -173,13 +173,62 @@ def hold\_out(data):\\
 سپس برای بدست آوردن مقدار \lr{Precision}، \lr{Recall} و \lr{F\_score} ابتدا مجموعه \lr{testing\_set} را به دو مجموعه حاوی نتایج نهایی و داده‌ها تقسیم می‌کنیم و سپس داده‌های تست را به مدل ساخته شده می‌دهیم. نتایج ذخیره شده در متغیر \lr{predicted} را با نتایج اصلی که در متغیر \lr{testing\_set\_result} ریخته بودیم را به‌کار می‌گیریم تا مقدار \lr{precision} و \lr{recall} و سپس \lr{f\_score} را بدست آوریم.
 \begin{flushleft}
 \lr{\texttt{
-def hold\_out(data):\\
-    test\_set\_size = math.floor(len(data.index) / 3)\\
-    test\_set\_indexes = sample(range(0,len(data.index)), test\_set\_size)\\
-    test\_set = pd.DataFrame(data, index=test\_set\_indexes)\\
-    train\_set = data.drop(test\_set\_indexes)\\
-    return train\_set, test\_set
+        testing\_set\_data = (pd.DataFrame(test\_data, columns=range(1, len(test\_data.columns)))).values.tolist()\\
+    testing\_set\_result = (pd.DataFrame(test\_data, columns=[0])).values.tolist()\\
+    predicted = knn.predict(testing\_set\_data)\\
+    precision, recall, fscore = (precision\_recall\_fscore\_support(testing\_set\_result, predicted, beta=1, average='binary'))[0:3]\\
+    print("Precesion= ", precision)\\
+    print("Recall= ", recall)\\
+    print("fscore(beta=1)= ", fscore)\\
 }}
 \end{flushleft}
-	
+
+\section{پیاده‌سازی با استفاده از \lr{RapidMiner} }
+\paragraph{}
+از آنجایی که این برنامه قدرت زیاد، کتابخانه‌های فراوان، ماژول‌های کامل و رابط کاربری مناسبی دارد، برای پردازش داده‌ها و داده‌کاوی بسیار مناسب است. ما با استفاده از این برنامه، الگوریتم \lr{K} نزدیک‌ترین همسایه، استخراج قانون‌ها از درخت \lr{ID3} و \lr{Cart} را پیاده‌سازی کردیم.
+از آنجایی که بخشی از پردازش‌ها در هر سه الگوریتم یکسان است (مانند پیش‌پردازش)، ابتدا این بخش‌ها را توضیح داده و سپس مرحله‌های پیاده‌سازی \lr{KNN}، درخت \lr{ID3} و درخت \lr{CART} را توضیح میدهیم.
+
+\subsection{پیش‌پردازش}
+\paragraph{}
+از آنجایی که هر دیتاست می‌تواند داده‌های از دست رفته داشته باشد، مرحله پیش‌پردازش بسیار مهم است. با توجه به اینکه داده‌ها اسمی هستند، میانگین و میانه معنای خاصی در این دیتاست پیدا نمی‌کند. بنابراین با استفاده از ماژول \lr{Replace Missing Value} داده‌های از دست رفته را با مد جایگزین می‌کنیم. هم‌چنین لازم به ذکر است که در تنظیمات این ماژول با توجه به اینکه دیتاست اسمی است، عبارت \lr{Average} همان \lr{mode} را حساب می‌کند.
+\پانویس{https://community.rapidminer.com/discussion/16515/rapidminer-handling-nominal-missing-attributes}
+
+\subsection{بدست آوردن قانون‌ها از درخت \lr{ID3}}
+\paragraph{}
+با توجه به اینکه در این روش می‌خواهیم درخت‌ها تصمیم را رسم کنیم، نیازی به تبدیل داده‌ها به داده‌های عددی نداریم. بنابراین مستقیم به سراغ رسم درخت تصمیم می‌رویم. ماژول \lr{Validation} جهت انجام پردازش روی داده‌ها و تست آنها استفاده می‌شود. همچنین ماژول \lr{Tree to rule} جهت استخراج قانون از درخت استفاده می‌شود. بنابراین ماژول \lr{Validation} را انتخاب کرده و سپس قسمت \lr{Training} را با ماژول \lr{Tree to Rule} پر میکنیم. در ماژول \lr{Tree to Rule}  نیز از ماژول \lr{Decision Tree} استفاده کرده و جهت رسم درخت \lr{ID3}، معیار آنرا بروی \lr{information gain} تنظیم می‌کنیم.
+
+
+مراحل به صورت کامل در شکل‌های زیر نشان داده شده است:
+\begin{figure}[!h]
+  \includegraphics[width=\linewidth]{1.jpg}
+  \caption{}
+    \label{tab:example}
+\end{figure}
+\begin{figure}[!h]
+  \includegraphics[width=\linewidth]{2.jpg}
+    \caption{}
+    \label{tab:example}
+\end{figure}
+\begin{figure}[!h]
+  \includegraphics[width=\linewidth]{3.jpg}
+    \caption{}
+    \label{tab:example}
+\end{figure}
+
+\newpage
+\subsection{بدست آوردن قانون‌ها از درخت \lr{Cart}}
+\paragraph{}
+در این روش، تمامی مراحل شبیه به روش قبل است. نیازی به تبدیل داده‌ها به داده‌های عددی نیست و جهت یادگیری و تست از ماژول \lr{Validation} استفاده می‌شود. همچنین از ماژول \lr{Tree to Rule} جهت بدست آوردن قوانین استفاده می‌کنیم. تنها تفاوت این روش با درخت \lr{ID3} در این است که معیار ماژول \lr{Decision tree} را بروی \lr{Gini Index} میگذاریم.
+
+
+تذکر: ما ترجیح دادیم که برای پیاده‌سازی و استخراج قوانین از ماژول‌های استاندارد \lr{RapidMiner} استفاده کنیم. ضمن اینکه می‌توان با دانلود افزونه \lr{Weka} و استفاده از ماژول‌های آن، نتیجه‌های دیگری گرفت. اگرچه می‌توانستیم ولی از نظر ما ماژول \lr{RapidMiner} دقت بهتری داشت.
+
+
+\subsection{الگورتیم \lr{KNN}}
+\paragraph{}
+این الگوریتم بروی داده‌های عددی قابل پیاده‌سازی است. بنابراین با استفاده از ماژول \lr{Nominal to Numerical} داده‌ها به عدد تنظیم می‌کنیم. هم‌چنین جهت تبدیل از روش \lr{Unique Integer} استفاده می‌کنیم به این معنا که به هر حرف یک عدد خاص نسبت میدهد.
+سپس ماژول \lr{Validation} را جهت انجام یادگیری و تست انتخاب می‌کنیم و ماژول \lr{k-NN} را در این قسمت قرار میدهیم. همچنین مقدار \lr{K} را بروی 3 قرار می‌دهیم تا برای هر پیش‌بینی از 3 همسایه نزدیک استفاده کند. ضمن اینکه نوع اندازه‌گیری را بروی \lr{NumericalMeasure} قرار داده و از فاصله اقلیدسی جهت محاسبه فاصله‌ها استفاده می‌کنیم.
+
+
+
 \end{document}
