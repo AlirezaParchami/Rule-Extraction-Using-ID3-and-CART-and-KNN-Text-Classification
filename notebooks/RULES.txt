@@ -1,18 +1,18 @@
-IF gill-color <= 3.5 AND population <= 3.5 AND odor <= 2.5 AND odor <= 0.5 THEN edible = e
-IF gill-color <= 3.5 AND population <= 3.5 AND odor <= 2.5 AND odor > 0.5 THEN edible = p
+IF gill-color <= 3.5 AND population <= 3.5 AND odor <= 2.5 AND stalk-root <= 0.5 THEN edible = p
+IF gill-color <= 3.5 AND population <= 3.5 AND odor <= 2.5 AND stalk-root > 0.5 THEN edible = e
 IF gill-color <= 3.5 AND population <= 3.5 AND odor > 2.5 THEN edible = e
-IF gill-color <= 3.5 AND population > 3.5 AND stalk-root <= 1.0 AND stalk-surface-below-ring <= 0.5 AND stalk-shape <= 0.5 THEN edible = e
-IF gill-color <= 3.5 AND population > 3.5 AND stalk-root <= 1.0 AND stalk-surface-below-ring <= 0.5 AND stalk-shape > 0.5 THEN edible = p
+IF gill-color <= 3.5 AND population > 3.5 AND stalk-root <= 1.0 AND stalk-surface-below-ring <= 0.5 AND cap-surface <= 2.5 THEN edible = p
+IF gill-color <= 3.5 AND population > 3.5 AND stalk-root <= 1.0 AND stalk-surface-below-ring <= 0.5 AND cap-surface > 2.5 THEN edible = e
 IF gill-color <= 3.5 AND population > 3.5 AND stalk-root <= 1.0 AND stalk-surface-below-ring > 0.5 THEN edible = p
 IF gill-color <= 3.5 AND population > 3.5 AND stalk-root > 1.0 THEN edible = e
 IF gill-color > 3.5 AND spore-print-color <= 1.5 AND odor <= 3.5 THEN edible = p
 IF gill-color > 3.5 AND spore-print-color <= 1.5 AND odor > 3.5 THEN edible = e
 IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size <= 0.5 AND spore-print-color <= 4.5 THEN edible = e
 IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size <= 0.5 AND spore-print-color > 4.5 AND spore-print-color <= 6.0 THEN edible = p
-IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size <= 0.5 AND spore-print-color > 4.5 AND spore-print-color > 6.0 AND stalk-color-above-ring <= 1.5 THEN edible = p
-IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size <= 0.5 AND spore-print-color > 4.5 AND spore-print-color > 6.0 AND stalk-color-above-ring > 1.5 THEN edible = e
+IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size <= 0.5 AND spore-print-color > 4.5 AND spore-print-color > 6.0 AND stalk-root <= 0.5 THEN edible = e
+IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size <= 0.5 AND spore-print-color > 4.5 AND spore-print-color > 6.0 AND stalk-root > 0.5 THEN edible = p
 IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size > 0.5 AND odor <= 5.5 AND population <= 3.5 THEN edible = p
-IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size > 0.5 AND odor <= 5.5 AND population > 3.5 AND habitat <= 1.0 AND stalk-shape <= 0.5 THEN edible = p
-IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size > 0.5 AND odor <= 5.5 AND population > 3.5 AND habitat <= 1.0 AND stalk-shape > 0.5 THEN edible = e
+IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size > 0.5 AND odor <= 5.5 AND population > 3.5 AND habitat <= 1.0 AND bruises? <= 0.5 THEN edible = p
+IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size > 0.5 AND odor <= 5.5 AND population > 3.5 AND habitat <= 1.0 AND bruises? > 0.5 THEN edible = e
 IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size > 0.5 AND odor <= 5.5 AND population > 3.5 AND habitat > 1.0 THEN edible = e
 IF gill-color > 3.5 AND spore-print-color > 1.5 AND gill-size > 0.5 AND odor > 5.5 THEN edible = p
